@@ -16,7 +16,7 @@ typedef struct {
 
 typedef struct {
 	char *publisherName;
-	int data;
+	void* data;
 }Publisher;
 
 static EventBus *globalEventBus;
@@ -58,7 +58,7 @@ void publish(Publisher publisher){
 		int res = strcmp(publisher.publisherName, globalEventBus->subscriberList[i].publisherName);
 		if (res == 0){
 			printf("found the subscriber subscriber to publisher and now calling the callBack\n");
-			globalEventBus->subscriberList[i].callback(&publisher.data);
+			globalEventBus->subscriberList[i].callback(publisher.data);
 		}
 	}
 }
@@ -91,7 +91,8 @@ int main(){
 	addSubscriber(subscriber2);
 	Publisher publisher1;
 	publisher1.publisherName = strdup("hello");
-	publisher1.data = 87932;
+	int pubData = 87932;
+	publisher1.data = &pubData;
 	publish(publisher1);
 	return 0;
 }
