@@ -6,7 +6,7 @@
 typedef struct {
 	size_t size;
 	char *publisherName;
-	void (*callback)(int);
+	void (*callback)(void*);
 }Subscriber;
 
 typedef struct {
@@ -21,15 +21,16 @@ typedef struct {
 
 static EventBus *globalEventBus;
 
-void callbackTest(int a){
-	printf("hello from callback with data %d \n",a);
+void callbackTest(void* a){
+	int* dataPtr = (int*)a;
+	printf("hello from callback with data %d \n",*dataPtr);
 }
 
 
-void callingCallback(void (*callback)(int)){
+void callingCallback(void (*callback)(void*)){
 	printf("entering function that does calling back\n");
 	int b = 30;
-	callback(b);
+	callback(&b);
 }
 
 
@@ -48,7 +49,7 @@ void addSubscriber(Subscriber subscriber){
 	for (int i = 0; i < count; i++){
 	        printf("even more sus but the new subscriber is of size %zu and name %s \n",globalEventBus->subscriberList[i].size, globalEventBus->subscriberList[i].publisherName);
 	}
-	globalEventBus->subscriberList[count-1].callback(count);
+	globalEventBus->subscriberList[count-1].callback(&count);
 }
 
 void publish(Publisher publisher){
@@ -57,7 +58,7 @@ void publish(Publisher publisher){
 		int res = strcmp(publisher.publisherName, globalEventBus->subscriberList[i].publisherName);
 		if (res == 0){
 			printf("found the subscriber subscriber to publisher and now calling the callBack\n");
-			globalEventBus->subscriberList[i].callback(publisher.data);
+			globalEventBus->subscriberList[i].callback(&publisher.data);
 		}
 	}
 }
@@ -73,7 +74,7 @@ int main(){
 	printf("triggering function which will do callback\n");
 	callingCallback(callbackTest);
 	int a = 20;
-	subscriber1.callback(a);
+	subscriber1.callback(&a);
 	int BusCount = 1;
 	globalEventBus = malloc(sizeof(EventBus) + BusCount * sizeof(Subscriber));
 	if (globalEventBus == NULL){
