@@ -1,9 +1,19 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
+
+#define MODE 1
+
+typedef enum {
+	INT,
+	FLOAT,
+	CHAR
+}typelist;
 
 
 typedef struct {
+	typelist type;
 	size_t size;
 	char *publisherName;
 	void (*callback)(void*);
@@ -15,6 +25,7 @@ typedef struct {
 }EventBus;
 
 typedef struct {
+	typelist type;
 	char *publisherName;
 	void* data;
 }Publisher;
@@ -57,8 +68,13 @@ void publish(Publisher publisher){
 	for (int i = 0; i < count; i++){
 		int res = strcmp(publisher.publisherName, globalEventBus->subscriberList[i].publisherName);
 		if (res == 0){
-			printf("found the subscriber subscriber to publisher and now calling the callBack\n");
-			globalEventBus->subscriberList[i].callback(publisher.data);
+			if (publisher.type == globalEventBus->subscriberList[i].type){
+
+			     printf("found the subscriber subscriber to publisher and now calling the callBack\n");
+			     globalEventBus->subscriberList[i].callback(publisher.data);
+			} else {
+				perror("ERROR: THE PUBLISHER AND SUBSCRIBER HAVE DIFFERENT DATA TYPES");
+			}
 		}
 	}
 }
@@ -70,6 +86,7 @@ int main(){
 	subscriber1.publisherName = strdup("hello");
 	subscriber1.size = strlen(subscriber1.publisherName);
 	subscriber1.callback = callbackTest;
+	subscriber1.type = INT;
 	printf("testing printing the subscriber size %zu and name is %s",subscriber1.size, subscriber1.publisherName);
 	printf("triggering function which will do callback\n");
 	callingCallback(callbackTest);
@@ -88,11 +105,13 @@ int main(){
 	subscriber2.publisherName = strdup("second sub");
 	subscriber2.size = strlen(subscriber2.publisherName);
 	subscriber2.callback = callbackTest;
+	subscriber2.type = INT;
 	addSubscriber(subscriber2);
 	Publisher publisher1;
 	publisher1.publisherName = strdup("hello");
 	int pubData = 87932;
 	publisher1.data = &pubData;
+	publisher1.type = CHAR;
 	publish(publisher1);
 	return 0;
 }
