@@ -73,7 +73,8 @@ void publish(Publisher publisher){
 			     printf("found the subscriber subscriber to publisher and now calling the callBack\n");
 			     globalEventBus->subscriberList[i].callback(publisher.data);
 			} else {
-				perror("ERROR: THE PUBLISHER AND SUBSCRIBER HAVE DIFFERENT DATA TYPES");
+				fprintf(stderr,"ERROR: the type of data %d being published for publisher name %s is different from the type of data expected by subscriber of type %d",publisher.type, publisher.publisherName,globalEventBus->subscriberList[i].type);
+				assert(publisher.type == globalEventBus->subscriberList[i].type);
 			}
 		}
 	}
